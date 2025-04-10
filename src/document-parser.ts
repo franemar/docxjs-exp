@@ -1424,7 +1424,8 @@ export class DocumentParser {
 		var fonts = [ascii, asciiTheme, eastAsia].filter(x => x).map(x => encloseFontFamily(x));
 
 		if (fonts.length > 0)
-			style["font-family"] = [...new Set(fonts)].join(', ');
+			//style["font-family"] = [...new Set(fonts)].join(', ');
+		    style["font-family"] = Array.from(new Set(fonts)).join(', ');
 	}
 
 	parseIndentation(node: Element, style: Record<string, string>) {
