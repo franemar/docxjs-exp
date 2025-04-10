@@ -2,6 +2,7 @@ node_modules
 .vs
 bin
 obj
+.build/
 docx.js.map
 /*.json
 /*.config
