@@ -11,6 +11,10 @@ const docxOptions = Object.assign(docx.defaultOptions, {
 
 //const container = document.querySelector("#document-container");
 const fileName: string = '/home/franemar/Library/Software-Engineering/Programming-Languages/Functional-Programming/Imperative_to_functional_programming_succinctly.docx';
+enum Format {
+    "docx" = "Microsoft Word/LibreOffice Doc",
+    "epub" = "Electronic Publication"
+}
 //const fileInput = document.querySelector("#files");
 //const loadButton = document.querySelector("#loadButton");
 //const testDocuments = document.querySelector("#testDocuments");
@@ -31,29 +35,40 @@ const fileName: string = '/home/franemar/Library/Software-Engineering/Programmin
 }
 */
 
-fs.readFile(fileName, (err, data)=> {
-    if (err) {
-        console.error('Error reading file:', err);
-        return;
-    }
-
-    //console.log(data);
-
-    //let docxBlob = preprocessTiff(data);
-
-    let parsedDocx = docx.parseAsync(
-        data,
-        docxOptions
-    )
-
-    fs.promises.writeFile('/home/franemar/Temp/Imperative_to_functional_programming_succinctly.dat',
-        parsedDocx?.toString(),
-        {
-            flag: 'w',
+function convertFormat(fileName: string, from: Format, to: Format) {
+    fs.readFile(fileName, async (err, data)=> {
+        if (err) {
+            console.error('Error reading file:', err);
+            return;
         }
-    )
-});
 
+        //console.log(data);
+
+        //let docxBlob = preprocessTiff(data);
+
+        let parsedDocx = await docx.parseAsync (
+            { data, userOptions: docxOptions }
+        )
+
+        //const buf = Buffer.from(parsedDocx, 'base64');
+
+        console.log(parsedDocx.partsMap)
+
+        let path = '/home/franemar/Temp/Imperative_to_functional_programming_succinctly.dat'
+
+        fs.promises.writeFile(path,
+            JSON.stringify(parsedDocx),
+            {
+                flag: 'w',
+            }
+        )
+
+        return path
+    });
+}
+
+console.log("Document converted and exported to: ", convertFormat(fileName, Format.docx, 
+    Format.epub))
 /*fileInput.addEventListener("change", ev => {
     renderDocx(fileInput.files[0]);
     testDocuments.selectedIndex = 0;

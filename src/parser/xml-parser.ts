@@ -1,4 +1,5 @@
 import { Length,  LengthUsage, LengthUsageType, convertLength, convertBoolean  } from "../document/common";
+const { DOMParser, XMLSerializer, Element, Node } = require('@xmldom/xmldom')
 
 export function parseXmlString(xmlString: string, trimXmlDeclaration: boolean = false): Document {
     if (trimXmlDeclaration)
@@ -31,22 +32,27 @@ export class XmlParser {
     elements(elem: Element, localName: string = null): Element[] {
         const result = [];
 
-        for (let i = 0, l = elem.childNodes.length; i < l; i++) {
-            let c = elem.childNodes.item(i);
+        if (elem && elem.childNodes) {   
+            for (let i = 0, l = elem.childNodes.length; i < l; i++) {
+                let c = elem.childNodes.item(i);
 
-            if (c.nodeType == 1 && (localName == null || (c as Element).localName == localName))
-                result.push(c);
+                if (c.nodeType == 1 && (localName == null || (c as Element).localName == localName))
+                    result.push(c);
+            }
         }
 
         return result;
     }
 
     element(elem: Element, localName: string): Element {
-        for (let i = 0, l = elem.childNodes.length; i < l; i++) {
-            let c = elem.childNodes.item(i);
+        
+        if (elem && elem.childNodes) {
+            for (let i = 0, l = elem.childNodes.length; i < l; i++) {
+                let c = elem.childNodes.item(i);
 
-            if (c.nodeType == 1 && (c as Element).localName == localName)
-                return c as Element;
+                if (c.nodeType == 1 && (c as Element).localName == localName)
+                    return c as Element;
+            }
         }
 
         return null;

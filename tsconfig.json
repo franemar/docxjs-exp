@@ -20,10 +20,9 @@
       "ES2017",
       "dom"
     ],
-    "baseUrl": "./",
     "outDir": "./dist",
     "rootDir": "./src",
-    "paths": { "@parser/*": ["src/parser/*"] }
+    "paths": { "@parser/*": ["./src/parser/*"] }
   },
   "include": ["**/*.ts"],
   "exclude": [

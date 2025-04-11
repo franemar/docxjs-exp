@@ -1,4 +1,4 @@
-import JSZip from "jszip";
+import JSZip = require("jszip");
 import { parseXmlString, XmlParser } from "../parser/xml-parser";
 import { splitPath } from "../utils";
 import { parseRelationships, Relationship } from "./relationship";

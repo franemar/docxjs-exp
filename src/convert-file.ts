@@ -42,9 +42,7 @@ fs.readFile(fileName, (err, data)=> {
     //let docxBlob = preprocessTiff(data);
 
     let parsedDocx = docx.parseAsync(
-        data,
-        docxOptions
-    )
+        { data, userOptions: docxOptions }    )
 
     fs.promises.writeFile('/home/franemar/Temp/Imperative_to_functional_programming_succinctly.dat',
         parsedDocx?.toString(),
