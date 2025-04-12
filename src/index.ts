@@ -1,20 +1,26 @@
-//import MODULE_NAME from './MODULE_LOCATION';
+
 import * as docx from './docx-preview.js';
 import * as fs from 'fs';
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
 
-let currentDocument = null;
 const docxOptions = Object.assign(docx.defaultOptions, {
     debug: true,
     experimental: true,
-    hideWrapperOnPrint: true
+    //debug
+    inWrapper: false, 
+    renderComments: true,
+    hideWrapperOnPrint: false,
+    ignoreLastRenderedPageBreak: true,
 });
 
 //const container = document.querySelector("#document-container");
-const fileName: string = '/home/franemar/Library/Software-Engineering/Programming-Languages/Functional-Programming/Imperative_to_functional_programming_succinctly.docx';
+const fileName = '/home/franemar/Library/Software-Engineering/Programming-Languages/Functional-Programming/Imperative_to_functional_programming_succinctly.docx';
 enum Format {
     "docx" = "Microsoft Word/LibreOffice Doc",
     "epub" = "Electronic Publication"
 }
+const outputPath = '/home/franemar/Temp/Imperative_to_functional_programming_succinctly.html'
 //const fileInput = document.querySelector("#files");
 //const loadButton = document.querySelector("#loadButton");
 //const testDocuments = document.querySelector("#testDocuments");
@@ -35,40 +41,48 @@ enum Format {
 }
 */
 
-function convertFormat(fileName: string, from: Format, to: Format) {
+function convertDocument({ fileName, from, to, outputPath }: 
+    { fileName: string; from: Format; to: Format; outputPath: string; }): void {
     fs.readFile(fileName, async (err, data)=> {
         if (err) {
             console.error('Error reading file:', err);
             return;
         }
 
-        //console.log(data);
-
         //let docxBlob = preprocessTiff(data);
 
-        let parsedDocx = await docx.parseAsync (
+        let parsedDocument = await docx.parseAsync (
             { data, userOptions: docxOptions }
         )
 
-        //const buf = Buffer.from(parsedDocx, 'base64');
-
-        console.log(parsedDocx.partsMap)
-
-        let path = '/home/franemar/Temp/Imperative_to_functional_programming_succinctly.dat'
-
-        fs.promises.writeFile(path,
-            JSON.stringify(parsedDocx),
+        /*//debug
+        fs.promises.writeFile('/home/franemar/Temp/parsedDocument.json',
+            JSON.stringify(parsedDocument),
             {
                 flag: 'w',
             }
         )
+        return
+        */
 
-        return path
+        //const buf = Buffer.from(parsedDocument, 'base64');
+        const dom = new JSDOM(`...`, {includeNodeLocations: true});
+        let result = await docx.renderDocument(parsedDocument, dom.window, 
+            dom.window.document.body, null, docxOptions);
+        console.log(result)
+
+        fs.promises.writeFile(outputPath,
+            //JSON.stringify(container),
+            dom.serialize(),
+            {
+                flag: 'w',
+            }
+        )
     });
 }
 
-console.log("Document converted and exported to: ", convertFormat(fileName, Format.docx, 
-    Format.epub))
+convertDocument({ fileName, from: Format.docx, to: Format.epub, outputPath })
+console.log("Document converted and exported to: '%s'", outputPath)
 /*fileInput.addEventListener("change", ev => {
     renderDocx(fileInput.files[0]);
     testDocuments.selectedIndex = 0;
