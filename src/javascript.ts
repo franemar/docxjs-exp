@@ -10,8 +10,8 @@ interface TabStop {
 const defaultTab: TabStop = { pos: 0, leader: "none", style: "left" };
 const maxTabs = 50;
 
-export function computePixelToPoint(container: HTMLElement = document.body) {
-	const temp = document.createElement("div");
+export function computePixelToPoint(doc: Document, container: HTMLElement) {
+	const temp = doc.createElement("div");
 	temp.style.width = '100pt';
 	
 	container.appendChild(temp);
@@ -21,7 +21,8 @@ export function computePixelToPoint(container: HTMLElement = document.body) {
 	return result
 }
 
-export function updateTabStop(elem: HTMLElement, tabs: ParagraphTab[], defaultTabSize: Length, pixelToPoint: number = 72 / 96) {
+export function updateTabStop(doc: Document, elem: HTMLElement, tabs: ParagraphTab[],
+    defaultTabSize: Length, pixelToPoint: number = 72 / 96) {
     const p = elem.closest("p");
 
     const ebb = elem.getBoundingClientRect();
@@ -58,7 +59,7 @@ export function updateTabStop(elem: HTMLElement, tabs: ParagraphTab[], defaultTa
     if (tab.style == "right" || tab.style == "center") {
 		const tabStops = Array.from(p.querySelectorAll(`.${elem.className}`));
 		const nextIdx = tabStops.indexOf(elem) + 1;
-        const range = document.createRange();
+        const range = doc.createRange();
         range.setStart(elem, 1);
 
 		if (nextIdx < tabStops.length) {

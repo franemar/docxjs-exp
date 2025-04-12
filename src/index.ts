@@ -4,14 +4,16 @@ import * as fs from 'fs';
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
+import JSZip = require("jszip");
+
 const docxOptions = Object.assign(docx.defaultOptions, {
     debug: true,
-    experimental: true,
     //debug
     inWrapper: false, 
     renderComments: true,
     hideWrapperOnPrint: false,
     ignoreLastRenderedPageBreak: true,
+    experimental: false
 });
 
 //const container = document.querySelector("#document-container");
@@ -55,15 +57,39 @@ function convertDocument({ fileName, from, to, outputPath }:
             { data, userOptions: docxOptions }
         )
 
-        /*//debug
-        fs.promises.writeFile('/home/franemar/Temp/parsedDocument.json',
-            JSON.stringify(parsedDocument),
+        //debug
+        const zip = new JSZip();
+        /*zip.
+        zip.file('/home/franemar/Temp/parsedDocument.zip', parsedDocument)*/
+
+        zip.generateAsync({type:"blob"}).then(function(content) {
+            //// see FileSaver.js
+            //saveAs(content, "example.zip");
+        });
+
+        /*let zipFile = JSZip.generateNodeStream(parsedDocument)
+        zipFile
+
+        const file = new File([parsedDocument], 
+            '/home/franemar/Temp/parsedDocument.zip', { type: "blob.type" });
+        
+        //const kb = 32 * 1024;
+        //const buf = Buffer.alloc(kb);
+        const ws = fs.createWriteStream('/home/franemar/Temp/parsedDocument.zip')
+        
+        //buf.copy
+        ws.write(parsedDocument);
+        ws.end();*/
+
+        /*fs.promises.writeFile('/home/franemar/Temp/parsedDocument.zip',
+            Blob(parsedDocument),
             {
                 flag: 'w',
             }
         )
+        //console.log(file);*/
         return
-        */
+        
 
         //const buf = Buffer.from(parsedDocument, 'base64');
         const dom = new JSDOM(`...`, {includeNodeLocations: true});

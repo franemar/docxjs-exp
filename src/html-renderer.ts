@@ -75,11 +75,13 @@ export class HtmlRenderer {
 	constructor(public htmlDocument: Document) {
 	}
 
-	async render(document: WordDocument, bodyContainer: HTMLElement, styleContainer: HTMLElement = null, options: Options) {
+	async render(document: WordDocument, bodyContainer: HTMLElement, 
+		styleContainer: HTMLElement = null, options: Options) {
 		this.document = document;
 		this.options = options;
 		this.className = options.className;
-		this.rootSelector = options.inWrapper ? `.${this.className}-wrapper` : ':root';
+		this.rootSelector = options.inWrapper ? 
+			`.${this.className}-wrapper` : ':root';
 		this.styleMap = null;
 		this.tasks = [];
 
@@ -130,7 +132,10 @@ export class HtmlRenderer {
 		if (!options.ignoreFonts && document.fontTablePart)
 			this.renderFontTable(document.fontTablePart, styleContainer);
 
-		var sectionElements = this.renderSections(document.documentPart.body);
+		let sectionElements = this.renderSections(document.documentPart.body);
+
+		//debug
+		console.log(JSON.stringify(sectionElements))
 
 		if (this.options.inWrapper) {
 			bodyContainer.appendChild(this.renderWrapper(sectionElements));
@@ -146,7 +151,7 @@ export class HtmlRenderer {
 
 		await Promise.allSettled(this.tasks);
 
-		this.refreshTabStops();
+		this.refreshTabStops(bodyContainer);
 	}
 
 	renderTheme(themePart: ThemePart, styleContainer: HTMLElement) {
@@ -749,9 +754,6 @@ section.${c}>footer { z-index: 1; }
 
 			case DomType.Image:
 				return this.renderImage(elem as IDomImage);
-
-			case DomType.Text:
-				return this.renderText(elem as WmlText);
 
 			case DomType.Text:
 				return this.renderText(elem as WmlText);
@@ -1488,15 +1490,16 @@ section.${c}>footer { z-index: 1; }
 		return mapping[format] ?? format;
 	}
 
-	refreshTabStops() {
+	refreshTabStops(container: HTMLElement) {
 		if (!this.options.experimental)
 			return;
 
 		setTimeout(() => {
-			const pixelToPoint = computePixelToPoint();
+			const pixelToPoint = computePixelToPoint(this.htmlDocument, container);
 
 			for (let tab of this.currentTabs) {
-				updateTabStop(tab.span, tab.stops, this.defaultTabSize, pixelToPoint);
+				updateTabStop(this.htmlDocument, tab.span, tab.stops,
+					this.defaultTabSize, pixelToPoint);
 			}
 		}, 500);
 	}
@@ -1532,7 +1535,8 @@ section.${c}>footer { z-index: 1; }
 type ChildType = Node | string;
 
 function removeAllElements(elem: HTMLElement) {
-	elem.innerHTML = '';
+	if (elem.hasOwnProperty("innerHTML")) 
+		elem.innerHTML = '';
 }
 
 function appendChildren(elem: Node, children: (Node | string)[]) {
